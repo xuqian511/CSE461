@@ -42,13 +42,12 @@ def ProcessPacket(message, client_ip):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.settimeout(timeout)
     sock.sendto(response, client_ip)
-    
+    sock.close()
     # Part B
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((udp_ip, udp_port))
     sock.settimeout(timeout)
-    print(udp_port)
-    print(udp_ip)
+
     
     payload_of_length_len = ln + 4
     if (payload_of_length_len % byte_alignment != 0):
@@ -58,7 +57,7 @@ def ProcessPacket(message, client_ip):
     num_received = 0
     
     while num_received < num:
-        print(num_received)
+      
         try:
             message = sock.recv(buffer_len)
         except:
@@ -76,6 +75,7 @@ def ProcessPacket(message, client_ip):
     secretB = random.randint(1, 400)
     response = pack('>iihhii', 4, psecret, server_step, sid, tcp_port, secretB)
     sock.sendto(response, client_ip)
+    sock.close()
     #part C
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((udp_ip, tcp_port))
@@ -90,20 +90,19 @@ def ProcessPacket(message, client_ip):
     response = pack('>iihhiii', 13 , secretB, step, sid, num2, len2, secretC) + special_char.encode("ascii")
     connection.sendto(response, client_address)
     # Part D
-    received_messages = 0
+    num_received = 0
     sock.settimeout(timeout)
     message_length = header_size + len2
 
     if (message_length % byte_alignment != 0):
         message_length += (byte_alignment - message_length % byte_alignment)
 
-    while received_messages < num2:
+    while num_received < num2:
         try:
             message = connection.recv(message_length)
         except:
             return
         
-        # Verify message contents
         if (len(message) != message_length):
             return
 
@@ -117,7 +116,7 @@ def ProcessPacket(message, client_ip):
             if chr(payload[i]) != special_char:
                 return
 
-        received_messages += 1
+        num_received += 1
 
     #random create SecretD
     secretD = random.randint(1, 400)
