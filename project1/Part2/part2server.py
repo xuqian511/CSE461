@@ -21,7 +21,8 @@ the server does not receive the correct secret
 """
 
 def ProcessPacket(message, client_ip):
-    # Part A
+    # Stage A
+    print("Stage A start")
     expected_payload = "hello world" + '\0'
     expected_message_len = header_size + len(expected_payload)
     
@@ -43,12 +44,13 @@ def ProcessPacket(message, client_ip):
     sock.settimeout(timeout)
     sock.sendto(response, client_ip)
     sock.close()
-    # Part B
+    print("Stage A done!")
+    print("Stage B start")
+    # Stage B
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((udp_ip, udp_port))
     sock.settimeout(timeout)
 
-    
     payload_of_length_len = ln + 4
     if (payload_of_length_len % byte_alignment != 0):
         payload_of_length_len = ln + 4 + (byte_alignment - (ln % byte_alignment))
@@ -64,19 +66,22 @@ def ProcessPacket(message, client_ip):
             return
         payload_len, psecret, step, sid, pid = unpack('>iihhi', message[0: header_size+4])
         payload = message[header_size+4: header_size+4 + payload_len]
+        # Verify packet length ,Check header and packet_id,payload_len
         if (psecret != secretA or payload_len != ln + 4 or pid != num_received) or (len(message) != expected_message_len):
             return
         
         response = pack('>iihhi', 4, psecret, server_step, sid, num_received)
         sock.sendto(response, client_ip)
         num_received += 1
-
+    
     tcp_port =  random.randint(20000, 32000)
     secretB = random.randint(1, 400)
     response = pack('>iihhii', 4, psecret, server_step, sid, tcp_port, secretB)
     sock.sendto(response, client_ip)
     sock.close()
-    #part C
+    print("Stage B done!")
+    #Stage C
+    print("Stage C start")
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind((udp_ip, tcp_port))
     sock.listen(backlog)
@@ -89,7 +94,9 @@ def ProcessPacket(message, client_ip):
     
     response = pack('>iihhiii', 13 , secretB, step, sid, num2, len2, secretC) + special_char.encode("ascii")
     connection.sendto(response, client_address)
-    # Part D
+    print("Stage C done!")
+    # Stage D
+    print("Stage D start")
     num_received = 0
     sock.settimeout(timeout)
     message_length = header_size + len2
@@ -103,28 +110,28 @@ def ProcessPacket(message, client_ip):
         except:
             return
         
-        if (len(message) != message_length):
+        if (len(message) != message_length):# Verify packet length
             return
 
         payload_len, psecret, step, sid = unpack('>IIHH', message[0:header_size])
         payload = message[header_size:header_size + len2]
 
-        if (psecret != secretC or payload_len != len2):
+        if (psecret != secretC or payload_len != len2):  # Check header and packet_id
             return
 
         for i in range(len2):
-            if chr(payload[i]) != special_char:
+            if chr(payload[i]) != special_char:  # Verify payload
                 return
-
         num_received += 1
-
     #random create SecretD
     secretD = random.randint(1, 400)
     response = pack('>IIHHI', 4, secretC, step, sid, secretD)
     connection.sendto(response, client_address)
+    print("Stage D done!")
 
     
 def Main():
+    print("begin the server")
     udp_port = 12235
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind((udp_ip, udp_port))
