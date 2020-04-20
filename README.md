@@ -1,5 +1,16 @@
-#CSE461
-##project1 socketAPI:
-Step1.py: client to get the message through UDP/TCP
-Step2server.py: Server to response the client from protocol of Step1.py
-Step2client.py: Client which does the same thing Step1.py
+#Server side:
+## version
+python 3.7
+## Members
+- Hung Lo: honkuro
+- Alex Lee : alee217
+- Neil Jurling : ndj0613
+## How to compile
+spin the server
+```
+python3 part2server.py
+```
+then run the client (which just modify the Domain from attu to our local server)
+```
+python3 part2client.py
+```
