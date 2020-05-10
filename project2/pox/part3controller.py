@@ -6,6 +6,7 @@
 from pox.core import core
 import pox.openflow.libopenflow_01 as of
 from pox.lib.addresses import IPAddr, IPAddr6, EthAddr
+import pox.lib.packet as pkt
 
 log = core.getLogger()
 
@@ -45,26 +46,55 @@ class Part3Controller (object):
     else:
       print ("UNKNOWN SWITCH")
       exit(1)
-
+  def set_up_all(self):
+      msg=of.ofp_flow_mod()
+      msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
+      self.connection.send(msg)
   def s1_setup(self):
     #put switch 1 rules here
-    pass
-
+    self.set_up_all()
   def s2_setup(self):
     #put switch 2 rules here
-    pass
+    self.set_up_all()
 
   def s3_setup(self):
     #put switch 3 rules here
-    pass
+    self.set_up_all()
 
   def cores21_setup(self):
+      msg = of.ofp_flow_mod()
+      msg.match.dl_type = 0x0800
+      msg.match.nw_proto = 1
+      msg.match.nw_src = "172.16.10.100"
+      self.connection.send(msg)
+
+      msg = of.ofp_flow_mod()
+      msg.match.dl_type = 0x0800
+      msg.match.nw_src = "172.16.10.100"
+      msg.match.nw_dst = "10.0.4.10"
+      self.connection.send(msg)
+      self.set_up_all()
+
     #put core switch rules here
-    pass
+#    fm=of.ofp_flow_mod()
+#    fm.match.nw_src = IPS["hnotrust"][0]
+#    fm.match.dl_type = 0x0800
+##    fm.match.nw_proto = 1
+##    fm.match.nw_dst = IPS["h20"][0]
+##    fm.actions.append(of.ofp_action_output(port=2))
+#    self.connection.send(fm)
+#    
+#    fm = of.ofp_flow_mod()
+#    fm.actions.append(of.ofp_action_output( port = of.OFPP_FLOOD ) )
+#    self.connection.send(fm)
+
+
 
   def dcs31_setup(self):
     #put datacenter switch rules here
-    pass
+    fm=of.ofp_flow_mod()
+    fm.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
+    self.connection.send(fm)
 
   #used in part 4 to handle individual ARP packets
   #not needed for part 3 (USE RULES!)
