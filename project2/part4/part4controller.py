@@ -48,41 +48,37 @@ class Part3Controller (object):
     else:
       print ("UNKNOWN SWITCH")
       exit(1)
-
+  def set_up_all(self):
+      msg=of.ofp_flow_mod()
+      msg.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
+      self.connection.send(msg)
   def s1_setup(self):
     #put switch 1 rules here
-    fm = of.ofp_flow_mod()
-    fm.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
-    self.connection.send(fm)
+    self.set_up_all()
 
   def s2_setup(self):
     #put switch 2 rules here
-    fm = of.ofp_flow_mod()
-    fm.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
-    self.connection.send(fm)
+    self.set_up_all()
 
   def s3_setup(self):
     #put switch 3 rules here
-    fm = of.ofp_flow_mod()
-    fm.actions.append(of.ofp_action_output(port = of.OFPP_FLOOD))
-    self.connection.send(fm)
+    self.set_up_all()
 
   def cores21_setup(self):
     #put core switch rules here
-    fm = of.ofp_flow_mod()
-    fm.match.dl_type = 0x0800
-    fm.match.nw_proto = 1
-    fm.match.nw_src = "172.16.10.0/24"
-    fm.actions.append(of.ofp_action_output(port = of.OFPP_NONE))
-    self.connection.send(fm)
+      msg = of.ofp_flow_mod()
+      msg.match.dl_type = 0x0800
+      msg.match.nw_proto = 1
+      msg.match.nw_src = "172.16.10.100"
+      self.connection.send(msg)
 
-    fm = of.ofp_flow_mod()
-    fm.match.dl_type = 0x0800
-    fm.match.nw_src = "172.16.10.0/24"
-    fm.match.nw_dst = "10.0.4.0/24"
-    fm.actions.append(of.ofp_action_output(port = of.OFPP_NONE))
-    self.connection.send(fm)
-
+      msg = of.ofp_flow_mod()
+      msg.match.dl_type = 0x0800
+      msg.match.nw_src = "172.16.10.100"
+      msg.match.nw_dst = "10.0.4.10"
+      self.connection.send(msg)
+      self.set_up_all()
+      
   def dcs31_setup(self):
     #put datacenter switch rules here
     fm = of.ofp_flow_mod()

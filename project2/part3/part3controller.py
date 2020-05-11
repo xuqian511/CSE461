@@ -75,19 +75,6 @@ class Part3Controller (object):
       self.connection.send(msg)
       self.set_up_all()
 
-    #put core switch rules here
-#    fm=of.ofp_flow_mod()
-#    fm.match.nw_src = IPS["hnotrust"][0]
-#    fm.match.dl_type = 0x0800
-##    fm.match.nw_proto = 1
-##    fm.match.nw_dst = IPS["h20"][0]
-##    fm.actions.append(of.ofp_action_output(port=2))
-#    self.connection.send(fm)
-#    
-#    fm = of.ofp_flow_mod()
-#    fm.actions.append(of.ofp_action_output( port = of.OFPP_FLOOD ) )
-#    self.connection.send(fm)
-
 
 
   def dcs31_setup(self):
